@@ -334,6 +334,8 @@ public:
     std::string const& getDefaultSaveName() const;
     void setDefaultSaveName(const std::string& name);
 
+    std::string const& getDefaultPdfExportName() const;
+
     ButtonConfig* getButtonConfig(int id);
 
     std::string const& getFullscreenHideElements() const;
@@ -859,6 +861,8 @@ private:
      * Default name if you save a new document
      */
     std::string defaultSaveName;  // should be string - don't change to path
+
+    std::string defaultPdfExportName;
 
     /**
      * The button config
