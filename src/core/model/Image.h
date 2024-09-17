@@ -15,6 +15,7 @@
 #include <string>       // for string
 #include <string_view>  // for string_view
 #include <utility>      // for pair, make_pair
+#include <vector>       // for vector
 
 #include <cairo.h>                  // for cairo_surface_t, cairo_status_t
 #include <gdk-pixbuf/gdk-pixbuf.h>  // for GdkPixbufFormat, GdkPixbuf
@@ -38,11 +39,8 @@ public:
     void setWidth(double width);
     void setHeight(double height);
 
-    /// Set the image data by copying the data from the provided string_view.
-    void setImage(std::string_view data);
-
     /// Set the image data by moving the data.
-    void setImage(std::string&& data);
+    void setImage(std::vector<std::byte>&& data);
 
     /// Set the image data by copying the data from the provided pixbuf.
     ///
@@ -72,7 +70,7 @@ public:
     /// Return the size of the raw image, or (-1, -1) if the image has not been rendered yet.
     std::pair<int, int> getImageSize() const;
 
-    GdkPixbufFormat* getImageFormat() const;
+    [[maybe_unused]] GdkPixbufFormat* getImageFormat() const;
 
     static constexpr std::pair<int, int> NOSIZE = std::make_pair(-1, -1);
 
@@ -101,5 +99,5 @@ private:
     mutable GdkPixbufFormat* format = nullptr;
     mutable std::pair<int, int> imageSize = {-1, -1};
 
-    std::string data;
+    std::vector<std::byte> data;
 };

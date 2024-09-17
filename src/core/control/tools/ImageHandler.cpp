@@ -22,6 +22,7 @@
 #include "undo/UndoRedoHandler.h"           // for UndoRedoHandler
 #include "util/XojMsgBox.h"                 // for XojMsgBox
 #include "util/i18n.h"                      // for _
+#include "util/raii/GObjectSPtr.h"          // for GObjectSPtr.h
 
 ImageHandler::ImageHandler(Control* control, XojPageView* view) {
     this->control = control;
@@ -31,13 +32,12 @@ ImageHandler::ImageHandler(Control* control, XojPageView* view) {
 ImageHandler::~ImageHandler() = default;
 
 auto ImageHandler::insertImage(double x, double y) -> bool {
-    GFile* file = ImageOpenDlg::show(control->getGtkWindow(), control->getSettings());
-    if (file == nullptr) {
+    xoj::util::GObjectSPtr<GFile> file(ImageOpenDlg::show(control->getGtkWindow(), control->getSettings()),
+                                       xoj::util::adopt);
+    if (!file) {
         return false;
     }
-    bool result = insertImage(file, x, y);
-    g_object_unref(file);
-    return result;
+    return insertImage(file.get(), x, y);
 }
 
 auto ImageHandler::insertImage(GFile* file, double x, double y) -> bool {
@@ -55,7 +55,8 @@ auto ImageHandler::insertImage(GFile* file, double x, double y) -> bool {
         img = new Image();
         img->setX(x);
         img->setY(y);
-        img->setImage(std::string(contents, length));
+        img->setImage(std::vector<std::byte>(reinterpret_cast<std::byte*>(contents),
+                                             reinterpret_cast<std::byte*>(contents + length)));
         g_free(contents);
     }
 
